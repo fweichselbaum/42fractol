@@ -1,32 +1,49 @@
-CC = cc
-CFLAGS = -Wall -Wextra -Werror -L minilibx-linux/ -lmlx -L /usr/lib -lXext -lX11 -lm
-LFLAGS = -L minilibx-linux/ -lmlx -L /usr/lib -lXext -lX11
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    Makefile                                           :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: fweichse <fweichse@student.42vienna.com    +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2023/09/28 12:21:48 by fweichse          #+#    #+#              #
+#    Updated: 2023/09/28 12:23:18 by fweichse         ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
 
-SRCS = main.c \
-utils.c \
-img.c \
-frac_mandelbrot.c \
-frac_julia.c
+SRC_DIR =	./src/
+INC_DIR =	./includes/
 
-OBJS := $(SRCS:%.c=%.o)
+SRC_FILES =		main.c \
+				utils.c \
+				img.c \
+				frac_mandelbrot.c \
+				frac_julia.c
 
-NAME = fractol
+SRCS =			$(addprefix $(SRC_DIR), $(SRC_FILES))
+SRC_OBJS =		$(SRCS:.c=.o)
 
-.PHONY: all clean fclean re
+# Compiler settings
+CC =			cc
+CFLAGS =		-Wall -Wextra -Werror -Ofast -w
+IFLAGS =		-I $(INC_DIR)
 
-all: $(NAME)
+# Target
+NAME =			fractol
+
+all: $(NAME)	
+
+$(NAME): $(SRC_OBJS)
+	$(CC) $(CFLAGS) $(SRC_OBJS) -o $(NAME) -lmlx -lXext -lX11 -lm
+
+%.o: %.c
+	$(CC) $(CFLAGS) -c $(IFLAGS) $< -o $@
 
 clean:
-	rm -f $(OBJS) $(BONUS_OBS)
-	
+	rm -rf $(SRC_OBJS) $(BONUS_OBJS)
+
 fclean: clean
 	rm -f $(NAME)
 
-re: fclean all
+re:	fclean all
 
-%.o: %.c fractol.h
-	$(CC) $(CFLAGS) -c $< -o $@
-
-$(NAME): $(OBJS)
-#	make -C minilibx-linux/
-	$(CC) $(OBJS) $(CFLAGS) -o $(NAME)
+.PHONY: all clean fclean re bonus

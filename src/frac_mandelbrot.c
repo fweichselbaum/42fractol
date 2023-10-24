@@ -6,36 +6,41 @@
 /*   By: fweichse <fweichse@student.42vienna.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/25 08:59:58 by fweichse          #+#    #+#             */
-/*   Updated: 2023/10/04 18:36:49 by fweichse         ###   ########.fr       */
+/*   Updated: 2023/10/24 17:49:55 by fweichse         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "fractol.h"
+#include <stdio.h>
 
-int findMandelbrot (double cr, double ci, int max_iterations)
+int findMandelbrot (double cr, double ci)
 {
+	int max_iterations = 100;
 	int i = 0;
 	double zr = 0.0, zi = 0.0;
 	double zr2 = 0.0, zi2 = 0.0;
+	double temp;
 	while (i < max_iterations && zr2 + zi2 < 4.0)
 	{
-		double temp = zr2 - zi2 + cr;
+		temp = zr2 - zi2 + cr;
 		zi = 2.0 * zr * zi + ci;
 		zr = temp;
 		zr2 = zr * zr;
 		zi2 = zi * zi;
 		++i;
 	}
-return(i - 1);
+	return(i - 1);
 }
 
-int mandel(double cr, double ci, int max_iterations)
+int mandel(double cr, double ci)
 {
+	int max_iterations = 100;
 	int i = 0;
 	double zr = 0.0, zi = 0.0;
-	while (i < max_iterations && zr * zr + zi * zi < 4.0)
+	double temp;
+	while (i < max_iterations && zr * zr + zi * zi < 16.0)
 	{
-		double temp = zr * zr - zi * zi + cr;
+		temp = zr * zr - zi * zi + cr;
 		zi = 2.0 * zr * zi + ci;
 		zr = temp;
 		++i;
@@ -54,6 +59,11 @@ void	frac_mandelbrot(t_mlx *meta)
 	t_complex	v_clone;
 	t_complex	v_new;
 
+	printf("center(%lf %lf)\n",
+		meta->params->x_center,
+		meta->params->y_center);
+	fflush(0);
+
 	meta->img = img_create(meta);
 	if (!meta->img)
 		return ;
@@ -61,7 +71,7 @@ void	frac_mandelbrot(t_mlx *meta)
 	{
 		y = 0;
 		while (y < HEIGHT)
-		{
+		{		
 			v.real = map_win(x, WIDTH,
 				meta->params->x_center - meta->params->zoom * ((double) WIDTH / HEIGHT),
 				meta->params->x_center + meta->params->zoom * ((double) WIDTH / HEIGHT));
@@ -86,8 +96,11 @@ void	frac_mandelbrot(t_mlx *meta)
 				y++;
 				continue ;
 			}
-			brightness = ((double) n) / max_iter * 0xff;
-			// brightness = sqrt(brightness) * 255;
+			brightness = sqrt(((double) n) / max_iter) * 0xff;
+
+
+			// brightness = sqrt(mandel(v.real, v.imaginary) / (double) 100) * 0xff;
+
 			img_pixel(meta->img, x, y, brightness << 16 | brightness << 8 | brightness);
 			y++;
 		}
